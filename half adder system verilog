@@ -1,0 +1,48 @@
+experiment:10
+(i) halfAdder_pkg.sv
+package halfAdder_pkg;
+
+    typedef struct packed {
+        logic a;
+        logic b;
+    } ha_in_t;
+
+    typedef struct packed {
+        logic sum;
+        logic carry;
+    } ha_out_t;
+
+Endpackage
+
+(ii) halfAdder.sv
+`timescale 1ns / 1ps
+import halfAdder_pkg::*;
+
+module halfAdder(
+    input  ha_in_t  in,
+    output ha_out_t out
+);
+    always_comb begin
+        out.sum   = in.a ^ in.b;
+        out.carry = in.a & in.b;
+    end
+endmodule
+
+(iii) halfAdder_tb.sv
+`timescale 1ns / 1ps
+import halfAdder_pkg::*;
+
+module halfAdder_tb;
+    ha_in_t  in;
+    ha_out_t out;
+
+    halfAdder dut (.in(in), .out(out));
+
+    initial begin
+        in.a = 0; in.b = 0; #10;
+        in.a = 0; in.b = 1; #10;
+        in.a = 1; in.b = 0; #10;
+        in.a = 1; in.b = 1; #10;
+        $finish;
+    end
+endmodule
