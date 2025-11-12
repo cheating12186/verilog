@@ -1,0 +1,97 @@
+Logic Code:
+
+`timescale 1ns / 1ns
+
+module moore1110_nonOverlapping(
+    input clk, rst, in,
+    output reg y
+    );
+
+    parameter s0=3'b000,
+              s1=3'b001,
+              s2=3'b010,
+              s3=3'b011,
+              s4=3'b100;
+
+    reg [2:0] ps, ns;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            ps <= s0;
+        else
+            ps <= ns;
+    end
+
+    always @(ps,in) begin
+        case(ps)
+            s0: if(in) ns = s1; else ns = s0;
+            s1: if(in) ns = s2; else ns = s0;
+            s2: if(in) ns = s3; else ns = s0;
+            s3: if(in) ns = s3; else ns = s4;
+            s4: if(in) ns = s1; else ns = s0;
+            default: ns = s0;
+        endcase
+    end
+
+    always @(ps) begin
+        case(ps)
+            s4: y = 1'b1;
+            default: y = 1'b0;
+        endcase
+    end
+
+endmodule
+
+Testbech Code:
+
+
+`timescale 1ns / 1ns
+module moore1110_tb(
+
+    );
+    reg clk,rst,in;
+    wire y;
+    moore1110_nonOverlapping uut(
+        .clk(clk),
+        .rst(rst),
+        .in(in),
+        .y(y)
+    );
+    
+    initial begin
+        clk= 1'b0;
+        in=0;
+        forever #5 clk= ~clk;
+    end
+
+     initial begin 
+        rst = 1'b1; 
+        in  = 1'b0; 
+        @(posedge clk);
+        rst = 1'b0; 
+ 
+        @(posedge clk) in = 1'b0; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b0; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b0; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b0; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b1; 
+        @(posedge clk) in = 1'b0; 
+        @(posedge clk) in = 1'b1; 
+
+        @(posedge clk); 
+    $finish; 
+end 
+
+    initial begin   
+        $monitor("\t\t clock: %d  input: %d   detect: %d",clk, in, y);
+    end
+endmodule
