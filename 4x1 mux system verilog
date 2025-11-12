@@ -1,0 +1,52 @@
+experiment:11
+(i) mux_pkg.sv
+package mux_pkg;
+
+    typedef struct packed {
+        logic [3:0] data;
+        logic [1:0] sel;
+    } mux_in_t;
+
+    typedef struct packed {
+        logic y;
+    } mux_out_t;
+Endpackage
+
+(ii) mux.sv
+`timescale 1ns / 1ps
+import mux_pkg::*;
+
+module mux4x1(
+    input  mux_in_t  in,
+    output mux_out_t out
+);
+    always_comb begin
+        case (in.sel)
+            2'b00: out.y = in.data[0];
+            2'b01: out.y = in.data[1];
+            2'b10: out.y = in.data[2];
+            2'b11: out.y = in.data[3];
+            default: out.y = 1'bx;
+        endcase
+    end
+endmodule
+
+(iii) mux_tb.sv
+`timescale 1ns / 1ps
+import mux_pkg::*;
+
+module mux4x1_tb;
+    mux_in_t  in;
+    mux_out_t out;
+
+    mux4x1 dut (.in(in), .out(out));
+    initial begin
+        in.data = 4'b1010;
+        in.sel = 2'b00; #10;
+        in.sel = 2'b01; #10;
+        in.sel = 2'b10; #10;
+        in.sel = 2'b11; #10;
+
+        $finish;
+    end
+endmodule
