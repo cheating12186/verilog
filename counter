@@ -1,0 +1,42 @@
+experiment: 9
+`timescale 1ns / 1ps
+module m_counter #(parameter M = 10, N = 4)(
+    input clk,
+    input rst,
+    output reg [N-1:0] count
+);
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            count <= 0;
+        else if (count == M-1)
+            count <= 0;
+        else
+            count <= count + 1;
+    end
+endmodule
+
+testbench:
+`timescale 1ns / 1ps
+module m_counter_tb;
+    reg clk, rst;
+    wire [3:0] count;
+
+    m_counter #(10,4) dut (
+        .clk(clk),
+        .rst(rst),
+        .count(count)
+    );
+
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    initial begin
+        rst = 1;
+        #10 rst = 0;
+        #200 $finish;
+    end
+
+    initial begin
+        $monitor("Time=%0t | count=%0d", $time, count);
+    end
+endmodule
