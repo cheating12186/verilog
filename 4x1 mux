@@ -1,0 +1,103 @@
+Experiment-4 
+4X1 MUX:
+
+ Logic code:
+
+`timescale 1ns / 1ps
+
+module fourX1Mux(
+    input i0,i1,i2,i3,
+    input s1,s0,
+    output y0,y1,y2,y3
+    );
+    
+    assign y0=~s1&~s0&i0;
+    assign y1 =~s1&s0&i1; 
+    assign y2= s1&~s0&i2; 
+    assign y3= s1&s0&i3 ;
+endmodule
+
+Testbench code:
+
+`timescale 1ns / 1ps
+
+module fourX1Mux_tb;
+
+    reg i0, i1, i2, i3;
+    reg s1, s0;
+    wire y0, y1, y2, y3;
+
+    // Instantiate DUT
+    fourX1Mux dut (
+        .i0(i0), .i1(i1), .i2(i2), .i3(i3),
+        .s1(s1), .s0(s0),
+        .y0(y0), .y1(y1), .y2(y2), .y3(y3)
+    );
+
+    initial begin
+        // Enable all input lines
+        i0 = 1; i1 = 1; i2 = 1; i3 = 1;
+
+        // Test all combinations of select lines
+        s1 = 0; s0 = 0; #10;  // y0 = 1
+        s1 = 0; s0 = 1; #10;  // y1 = 1
+        s1 = 1; s0 = 0; #10;  // y2 = 1
+        s1 = 1; s0 = 1; #10;  // y3 = 1
+
+        $finish;
+    end
+
+    initial begin
+        $display("Time | s1 s0 | y0 y1 y2 y3");
+        $monitor("%4dns |  %b  %b |  %b  %b  %b  %b", $time, s1, s0, y0, y1, y2, y3);
+    end
+
+endmodule
+
+Using ternary operator:
+
+Logic code:
+timescale 1ns / 1ps
+
+module MuxUsingTer(
+    input [3:0] i,
+    input s1,s0,
+    output y
+    );
+    
+    assign y= s1?(s0?i[3]:i[2]):(s0?i[2]:i[0]);
+endmodule
+
+Testbench code:
+
+
+`timescale 1ns / 1ps
+
+module muxusingTer_tb(
+
+    );
+    reg [3:0] i;
+    reg s1,s0;
+    wire y;
+    
+    MuxUsingTer dut(
+        .i(i),
+        .s1(s1),
+        .s0(s0),
+        .y(y)
+    );
+    initial i=1'b0001;
+    initial begin
+        s1=1'b0; s0=1'b0; #10;
+        s1=1'b0; s0=1'b1; #10;
+        s1=1'b1; s0=1'b0; #10;
+        s1=1'b1; s0=1'b1; #10;
+        $finish;
+    end
+    initial begin
+        $display("Time | s1   s0 |   y");
+        $monitor("%000t  %b  %b | %b ", $time,s1,s0,y);
+    end
+    
+    
+endmodule
