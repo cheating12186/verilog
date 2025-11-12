@@ -1,0 +1,59 @@
+EXPERIMENT-5   
+
+Binary -gray code conversion:
+
+Logic code:
+
+`timescale 1ns / 1ps
+module grayToBinary(
+    input [3:0] a,
+    output[3:0] y,
+    output [3:0] b
+    );
+    assign b[3]=a[3];
+    assign b[2]=a[3]^a[2];
+    assign b[1]=a[2]^a[1];
+    assign b[0]= a[1]^a[0];
+    
+    
+    assign y[3]=b[3];
+    assign y[2]=y[3]^b[2];
+    assign y[1]=y[2]^b[1];
+    assign y[0]= y[1]^b[0];
+    
+endmodule
+
+Testbench code:
+
+`timescale 1ns / 1ps
+
+module grayToBinary_tb(
+    );
+    reg [3:0] a;
+    wire[3:0] b;
+    wire [3:0] y;
+    grayToBinary uut(
+        .a(a),
+        .b(b),
+        .y(y)
+    );
+    
+    
+    reg clk;
+    initial clk=0;
+   
+    always begin
+        #10 clk=~clk;
+    end
+    integer i;
+    initial i=0;
+    always@(posedge clk) begin
+        a=$random%16;
+        i=i+1;
+        if(i==10) $finish;
+    end
+    initial begin
+        $display("Time | binary | gray  | binary");
+        $monitor("%0t | %b  | %b  |  %b",$time,a,b,y);
+    end
+endmodule
