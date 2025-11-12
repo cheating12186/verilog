@@ -1,0 +1,95 @@
+EXPERIMENT-2 
+
+Behavioral modelling:
+`timescale 1ns / 1ps
+module logicGates(
+    input a,b,
+    output reg and_gate,
+    output reg or_gate,
+    output reg not_gate,
+    output reg nor_gate,
+    output reg nand_gate,
+    output reg xor_gate,
+    output reg xnor_gate
+    );
+    always@(*)
+        begin
+            and_gate=a&b;
+            or_gate=a|b;
+            not_gate=~a;
+            nor_gate=~(a|b);
+            nand_gate=~(a&b);
+            xor_gate=a^b;
+            xnor_gate=~(a^b);
+        end
+endmodule
+
+
+Data Flow Modeling :
+timescale 1ns / 1ps
+module logicGates_dataflow(
+    input a, b,
+    output and_gate,
+    output or_gate,
+    output not_gate,
+    output nor_gate,
+    output nand_gate,
+    output xor_gate,
+    output xnor_gate
+    );
+
+    assign and_gate = a & b;
+    assign or_gate  = a | b;
+    assign not_gate = ~a;
+    assign nor_gate = ~(a | b);
+    assign nand_gate = ~(a & b);
+    assign xor_gate = a ^ b;
+    assign xnor_gate = ~(a ^ b);
+endmodule 
+
+Testbench code:
+
+`timescale 1ns / 1ps
+module logicGates_testbench;
+
+    // Inputs
+    reg a, b;
+
+    // Outputs
+    wire and_gate;
+    wire or_gate;
+    wire not_gate;
+    wire nand_gate;
+    wire nor_gate;
+    wire xor_gate;
+    wire xnor_gate;
+
+    // Instantiate the Unit Under Test (UUT)
+    logicGates dut (
+        .a(a),
+        .b(b),
+        .and_gate(and_gate),
+        .or_gate(or_gate),
+        .not_gate(not_gate),
+        .nand_gate(nand_gate),
+        .nor_gate(nor_gate),
+        .xor_gate(xor_gate),
+   
+
+
+
+     .xnor_gate(xnor_gate)
+    );
+
+    // Test Sequence
+    initial begin
+        $display("Time\t a b | AND OR NOT NAND NOR XOR XNOR");
+        $monitor("%0t\t %b %b |  %b   %b   %b    %b    %b   %b    %b", 
+                 $time, a, b, and_gate, or_gate, not_gate, nand_gate, nor_gate, xor_gate, xnor_gate);
+
+        a = 0; b = 0; #10;
+        a = 0; b = 1; #10;
+        a = 1; b = 0; #10;
+        a = 1; b = 1; #10;
+        $finish;
+    End
