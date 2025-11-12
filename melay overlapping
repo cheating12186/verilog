@@ -1,0 +1,107 @@
+experiment-7:
+Logic Code:
+
+`timescale 1ns / 1ns
+
+module fsm_mealyOverlapping(
+    input clk, rst, in,
+    output reg y
+    );
+
+    parameter s0=3'b000,
+              s1=3'b001,
+              s2=3'b010,
+              s3=3'b011,
+              s4=3'b100;
+
+    reg [2:0] ps, ns;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            ps <= s0;
+        else
+            ps <= ns;
+    end
+
+    // Next state logic
+always @(*) begin
+    ns = s0;  // default
+    case(ps)
+        s0: if(in) ns = s1; else ns = s0;
+        s1: if(in) ns = s2; else ns = s0;
+        s2: if(in) ns = s2; else ns = s3;
+        s3: if(in) ns = s1; else ns = s4;
+        s4: if(in) ns = s1; else ns = s0;
+        default: ns = s0;
+    endcase
+end
+
+// Output logic (true Mealy style)
+always @(*) begin
+    y = 1'b0;  // default
+    case(ps)
+        s4: if(in) y = 1'b1;   // output depends on ps and in
+    endcase
+end
+endmodule
+
+Testbench Code:
+
+`timescale 1ns / 1ns
+module fsm_mealyOverlapping_tb(
+
+    );
+    reg clk,rst,in;
+    wire y;
+    fsm_mealyOverlapping uut(
+        .clk(clk),
+        .rst(rst),
+        .in(in),
+        .y(y)
+    );
+    
+    initial begin
+        clk= 1'b0;
+        in=0;
+        forever #5 clk= ~clk;
+    end
+
+    initial begin
+    rst = 1'b1;
+    in  = 1'b0;
+    @(posedge clk);   // wait first clock
+    rst = 1'b0;
+
+    // now change `in` on every posedge of clk
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b1;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b0;
+    @(posedge clk) in = 1'b1;
+
+    // finish after one more clock
+    @(posedge clk);
+    $finish;
+end
+
+    initial begin   
+    $display(" clock|input|detect ");
+    forever begin
+    @(posedge clk);
+    #1 $display(" %0d  |  %0d |  %0d", clk, in, y);
+end
+
+end
+
+endmodule
