@@ -1,0 +1,76 @@
+experiment-6:
+Logic Code:
+`timescale 1ns / 1ps
+module ALU(
+    input [2:0] a,
+    input [2:0] b,
+    output reg [3:0] y,
+    input [2:0] s
+    );
+    always@(*)
+    begin
+        case(s)
+            3'b000:begin //addition
+                y=a+b;
+            end
+            3'b001:begin //suntraction
+                y=a-b;
+            end
+            3'b010:begin //AND
+                y[2:0]=a&b;
+            end
+            3'b011:begin //OR
+                y[2:0]=a|b;
+            end
+            3'b100:begin //NAND
+                y[2:0]=~(a&b);
+            end
+            3'b101:begin //NOR
+                y[2:0]=~(a|b);
+            end
+            3'b110:begin //XOR
+                y[2:0]=a^b;
+            end
+            3'b111:begin //XNOR
+                y[2:0]=~(a^b);
+            end
+        endcase
+    end
+endmodule
+
+Testbench Code:
+`timescale 1ns / 1ps
+module alu_tb(
+    );
+    reg [2:0] a;
+    reg [2:0] b;
+    reg [2:0] s;
+    wire [3:0] y;
+    ALU uut(
+        .a(a),
+        .b(b),
+        .s(s),
+        .y(y)
+    );
+    initial s=3'b000;
+    reg clk;
+    initial begin
+        clk=0;
+    end
+    always begin
+        #10 clk=~clk;
+    end
+    initial begin
+        a=3'b101;
+        b=3'b011;
+    end
+    always@(posedge clk)
+    begin
+        s=s+1;
+        if(s==3'b111) #20 $finish;
+    end
+    initial begin
+        $display("Time |  a  |  b  |  s | y");
+        $monitor("%0t | %b | %b | %b | %b |", $time,a,b,s,y);
+    end 
+endmodule
