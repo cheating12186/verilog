@@ -1,0 +1,39 @@
+logic code:
+module updown_counter(input logic clk, reset, up_down, output logic [3:0] count);
+always_ff @(posedge clk or posedge reset) begin
+    if (reset)
+        count <= 4'b0000;
+    else if (up_down)
+        count <= count + 1;
+    else
+        count <= count - 1;
+end
+endmodule
+
+
+testbecch :module tb_updown_counter;
+logic clk, reset, up_down;
+logic [3:0] count;
+
+updown_counter dut(clk, reset, up_down, count);
+
+initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+end
+
+initial begin
+    reset = 1; up_down = 1;
+    #10 reset = 0;
+    #100 up_down = 0;
+    #100 $finish;
+end
+
+initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, tb_updown_counter);
+end
+endmodule
+
+
+
